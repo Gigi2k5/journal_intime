@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Journal Intime{% endblock %}
+
+{% block content %}
+<style>
+  .journal-container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: #fdfaf6;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Georgia', serif;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #3e3e3e;
+    margin-bottom: 25px;
+  }
+  
+  form textarea {
+    width: 100%;
+    height: 150px;
+    padding: 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    resize: vertical;
+    background-color: #fff;
+    font-family: 'Georgia', serif;
+  }
+  
+  .btn {
+    display: inline-block;
+    margin-top: 15px;
+    background-color: #6b5b95;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .btn:hover {
+    background-color: #5a4a82;
+  }
+  
+  .entry {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-left: 4px solid #6b5b95;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 10px;
+  }
+  
+  .entry small {
+    display: block;
+    color: #999;
+    margin-bottom: 5px;
+  }
+  
+  .entry-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .pagination {
+    text-align: center;
+    margin-top: 30px;
+    font-weight: bold;
+  }
+  
+  .pagination a {
+    color: #6b5b95;
+    text-decoration: none;
+    margin: 0 10px;
+  }
+  
+  .pagination a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="journal-container">
+  <h2>Mon Journal</h2>
+  
+  <!-- Formulaire pour ajouter une nouvelle entrée -->
+  <form method="POST">
+    <textarea name="texte" rows="4" cols="60" placeholder="Écris ici..."></textarea>
+    <br>
+    <button type="submit" class="btn">Ajouter</button>
+  </form>
+  
+  <hr>
+  
+  <!-- Affichage des entrées paginées par mots -->
+  {% if entries %}
+    {% for item in entries %}
+      <div class="entry">
+        <small>{{ item.entry.date_created.strftime("%d/%m/%Y %H:%M") }}</small>
+        <p>{{ ' '.join(item.words) }}</p>
+        <div class="entry-actions">
+          <a href="{{ url_for('edit_entry', entry_id=item.entry.id) }}" class="btn">✏️ Modifier</a>
+          <form action="{{ url_for('delete_entry', entry_id=item.entry.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn">🗑 Supprimer</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Tu n'as pas encore d'entrées dans ton journal. Commence à écrire dès maintenant !</p>
+  {% endif %}
+  
+  <!-- Pagination -->
+  <div class="pagination">
+    {% if pagination.has_prev %}
+      <a href="{{ url_for('journal', page=pagination.prev_num) }}">⬅ Précédent</a>
+    {% endif %}
+    
+    Page {{ pagination.page }} / {{ pagination.pages }}
+    
+    {% if pagination.has_next %}
+      <a href="{{ url_for('journal', page=pagination.next_num) }}">Suivant ➡</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
